@@ -1,23 +1,31 @@
 import logo from './logo.svg';
 import './App.css';
-
+import {
+  BrowserRouter as Router,
+  useRoutes,
+} from "react-router-dom";
+import { Navigate } from 'react-router-dom';
+import ReportComponent from './components/ReportComponent';
+import { UploadPdf } from './components/componentIndex';
 function App() {
+  const AppWrapper = ({data}) => {
+
+
+    let routes = useRoutes([
+      { path: "/", element: <Navigate to="/uploadPdf" /> },
+      { path: "/report", element: <ReportComponent/> },
+      { path: "/uploadPdf", element:  <UploadPdf/>},
+      // ...
+    ]);
+    return routes;
+  };
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+           <Router>
+           <AppWrapper/>
+           </Router>
+   
     </div>
   );
 }
