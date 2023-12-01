@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 const ReportComponent = ({ fileInput }) => {
     const [reportData, setReportData] = useState({ title: {}, summary: {}, data: [] });
+    const [imageUrls, setImageUrls] = useState([]);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
     useEffect(() => {
         const formData = new FormData();
@@ -15,9 +17,30 @@ const ReportComponent = ({ fileInput }) => {
 
         fetch("https://aianalyzer.fxlogapp.com/api/fetch_report/", requestOptions)
             .then(response => response.json())
-            .then(data => setReportData(data))
-            .catch(error => console.log('error', error));
+            .then(data => {
+                if (data.status === 'success' && typeof data.data === 'object') {
+                    const parsedData = JSON.parse(data.data.data);
+                    setReportData(parsedData);
+            
+                    // Replace single quotes with double quotes and parse
+                    const imageUrlsString = data.data.image_urls.replace(/'/g, '"');
+                    const parsedImageUrls = JSON.parse(imageUrlsString);
+                    setImageUrls(parsedImageUrls);
+            
+                    setDataLoaded(true);
+                } else {
+                    console.error('Data fetched is not in the expected format:', data);
+                }
+            })
+            .catch(error => {
+                console.log('error', error);
+                setDataLoaded(false);
+            });
     }, [fileInput]);
+
+    if (!dataLoaded) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div>
@@ -28,12 +51,12 @@ const ReportComponent = ({ fileInput }) => {
                     <div key={index} className="report-section">
                         <h2>{item.slide_title}</h2>
                         <p>{item.content}</p>
-                        {item.image_url && <img src={item.image_url} alt="Report Section" />}
+                        {imageUrls[index] && <img src={imageUrls[index]} alt="Report Section" />}
                     </div>
                 ))}
             </div>
         </div>
     );
-}
+};
 
 export default ReportComponent;
