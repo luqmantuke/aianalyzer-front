@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom'; // Import from 'react-router-dom'
+import {  useNavigate } from 'react-router-dom'; // Import from 'react-router-dom'
 
 const PDFUploadPage = () => {
     const [file, setFile] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate(); // Initialize navigate
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -23,10 +24,16 @@ const PDFUploadPage = () => {
         };
 
         fetch("https://aianalyzer.fxlogapp.com/api/upload_pdf_view/", requestOptions)
-            .then(response => response.text())
+            .then(response => response.json()) // Change this to response.json()
             .then(result => {
-                console.log(result);
-                history.push('/report/');
+                setIsLoading(false); // Set loading to false upon receiving the response
+                if (result.status === "success") {
+                    // Navigate to the report page with the returned report ID
+                    navigate(`/report/${result.report_id}`);
+                } else {
+                    // Handle the case where the API does not return a success status
+                    console.error('Failed to upload:', result.message);
+                }
             })
             .catch(error => {
                 console.log('error', error);

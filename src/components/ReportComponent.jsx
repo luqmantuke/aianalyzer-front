@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; // Import useParams
 
-const ReportComponent = ({ fileInput }) => {
+const ReportComponent = () => {
     const [reportData, setReportData] = useState({ title: {}, summary: {}, data: [] });
     const [imageUrls, setImageUrls] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(false);
+    const { reportId } = useParams(); // Use the useParams hook to get the reportId
 
     useEffect(() => {
         const formData = new FormData();
-        formData.append("report_id", "9b4fba35-7630-42ab-a77e-ca878314fee1");
+        formData.append("report_id", reportId); // Use reportId from the URL
 
         const requestOptions = {
             method: 'POST',
@@ -36,7 +38,7 @@ const ReportComponent = ({ fileInput }) => {
                 console.log('error', error);
                 setDataLoaded(false);
             });
-    }, [fileInput]);
+    }, [reportId]); // Dependency array now includes reportId
 
     if (!dataLoaded) {
         return <div>Loading...</div>;
@@ -60,3 +62,4 @@ const ReportComponent = ({ fileInput }) => {
 };
 
 export default ReportComponent;
+    
