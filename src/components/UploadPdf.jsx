@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { SERVER_URL } from "../utils/api/api";
+import { useNavigate } from "react-router-dom";
 
 const PDFUploadPage = () => {
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const navigate = useNavigate();
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
@@ -23,10 +24,11 @@ const PDFUploadPage = () => {
     };
 
     fetch(`${SERVER_URL}/api/upload_pdf_view/`, requestOptions)
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => {
         console.log(result);
-        history.push("/report/");
+
+        navigate(`/report/${result.report_id}`);
       })
       .catch((error) => {
         console.log("error", error);
@@ -48,7 +50,7 @@ const PDFUploadPage = () => {
           Choose a file
         </label>
         {isLoading ? (
-          <p>Loading...</p>
+          <p>Uploading...</p>
         ) : (
           <button onClick={uploadPDF}>Upload</button>
         )}

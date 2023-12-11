@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { SERVER_URL } from "../utils/api/api";
+import { useParams } from "react-router-dom"; // Import useParams
 
-const ReportComponent = ({ fileInput }) => {
+const ReportComponent = () => {
   const [reportData, setReportData] = useState({
     title: {},
     summary: {},
     data: [],
   });
+  const [imageUrls, setImageUrls] = useState([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const { reportId } = useParams(); // Use the useParams hook to get the reportId
 
   useEffect(() => {
     const formData = new FormData();
@@ -17,11 +21,13 @@ const ReportComponent = ({ fileInput }) => {
       body: formData,
       redirect: "follow",
     };
+
     fetch(`${SERVER_URL}/api/fetch_report/`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         if (data.status === "success" && typeof data.data === "object") {
           const parsedData = JSON.parse(data.data.data);
+          console.log(parsedData);
           setReportData(parsedData);
 
           // Replace single quotes with double quotes and parse
@@ -45,22 +51,26 @@ const ReportComponent = ({ fileInput }) => {
   }
 
   return (
-    <div>
-      <h1 id="reportTitle">{reportData.title.description || "Report Title"}</h1>
-      <p id="reportSummary">
-        {reportData.summary.description || "Report Summary"}
-      </p>
-      <div id="reportContent">
-        {reportData.data.map((item, index) => (
-          <div key={index} className="report-section">
-            <h2>{item.slide_title}</h2>
+    <div id="reportContent">
+      {reportData.data.map((item, index) => (
+        <div key={index} className="report-section">
+          <h2>{item.slide_title}</h2>
+          {typeof item.content === "object" ? (
+            <div>
+              {Object.entries(item.content).map(([key, value]) => (
+                <p key={key}>
+                  <strong>{key}:</strong> {value.toString()}
+                </p>
+              ))}
+            </div>
+          ) : (
             <p>{item.content}</p>
-            {imageUrls[index] && (
-              <img src={imageUrls[index]} alt="Report Section" />
-            )}
-          </div>
-        ))}
-      </div>
+          )}
+          {imageUrls[index] && (
+            <img src={imageUrls[index]} alt="Report Section" />
+          )}
+        </div>
+      ))}
     </div>
   );
 };
